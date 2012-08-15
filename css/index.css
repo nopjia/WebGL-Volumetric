@@ -1,0 +1,6 @@
+#container {
+  overflow: hidden;
+}
+#container>canvas {
+  float: left;
+}

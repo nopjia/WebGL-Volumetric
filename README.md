@@ -1,2 +1,2 @@
-WebGL-Volumetric
-================
+WebGL Volumetric Renderer
+=========================
