@@ -34,7 +34,7 @@ function init() {
     c.CAM_NEAR,
     c.CAM_FAR
   );
-  g.camera.position.set(0, 5, 10);
+  g.camera.position.set(1, 2, 3);
   g.camera.lookAt(new THREE.Vector3());
 
   // scene
@@ -151,7 +151,7 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture2.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture2g.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
@@ -174,8 +174,8 @@ function initScene() {
     new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
     shader
   );
-  g.cube.position.set(0.0, 0.0, 0.0);
-  g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
+  //g.cube.position.set(0.0, 0.0, 0.0);
+  //g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
   g.scene.add(g.cube);
 }
 

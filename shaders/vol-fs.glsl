@@ -36,13 +36,14 @@ uniform vec3 uTexDim;
 // PROGRAM
 //---------------------------------------------------------
 
-float sampleVolTex(vec3 pos) {
-  float zSlice = (1.0-pos.z)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
+float sampleVolTex(vec3 pos) {  
+  // note: z is up in 3D tex coords, pos.z is tex.y, pos.y is zSlice
+  float zSlice = (1.0-pos.y)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
   
   // calc pixels from top of texture
   float fromTopPixels =
     floor(zSlice)*uTexDim.y +   // offset pix from top of tex, from upper slice  
-    pos.y*(uTexDim.y-1.0) +     // y pos in pixels, range 0th to 63rd pix
+    pos.z*(uTexDim.y-1.0) +     // y pos in pixels, range 0th to 63rd pix
     0.5;  // offset to center of cell
     
   // calc y tex coords of two slices
