@@ -3,17 +3,21 @@ precision highp float;
 #endif
 
 //---------------------------------------------------------
-// CONSTANTS
+// MACROS
 //---------------------------------------------------------
+
 #define EPS       0.0001
 #define PI        3.14159265
 #define HALFPI    1.57079633
 #define ROOTTHREE 0.57735027
 
+#define EQUALS(A,B) ( abs((A)-(B)) < EPS )
+#define EQUALSZERO(A) ( ((A)<EPS) && ((A)>-EPS) )
+
+
 //---------------------------------------------------------
-// MACROS
+// SHADER VARS
 //---------------------------------------------------------
-#define EQUALS(A,B) (abs(A-B)<EPS)
 
 varying vec2 vUv;
 varying vec3 vPos0; // position in world coords
@@ -27,30 +31,30 @@ uniform vec3 uCamUp;
 uniform sampler2D uTex;
 uniform vec3 uTexDim;
 
-bool equals(float a, float b) {
-  return abs(a-b) < EPS;
-}
+
+//---------------------------------------------------------
+// PROGRAM
+//---------------------------------------------------------
 
 float sampleVolTex(vec3 pos) {
-  float zSlice = (pos.z)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
+  float zSlice = (1.0-pos.z)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
   
-  // calc y tex coord  
-  float offsetPixels = floor(zSlice)*uTexDim.y;  // offset pixels from top of texture, upper slice
-  float yposPixels = pos.y*(uTexDim.y-1.0);  // y position in pixels, pix 0th to 63rd
-  
-  float y0 = min( (offsetPixels+yposPixels+0.5)/(uTexDim.y*uTexDim.z), 1.0);
-  float y1 = min( (offsetPixels+yposPixels+uTexDim.y+0.5)/(uTexDim.y*uTexDim.z), 1.0);
+  // calc pixels from top of texture
+  float fromTopPixels =
+    floor(zSlice)*uTexDim.y +   // offset pix from top of tex, from upper slice  
+    pos.y*(uTexDim.y-1.0) +     // y pos in pixels, range 0th to 63rd pix
+    0.5;  // offset to center of cell
     
-  // (bi)linear interped val at two slices
+  // calc y tex coords of two slices
+  float y0 = min( (fromTopPixels)/(uTexDim.y*uTexDim.z), 1.0);
+  float y1 = min( (fromTopPixels+uTexDim.y)/(uTexDim.y*uTexDim.z), 1.0);
+    
+  // get (bi)linear interped texture reads at two slices
   float z0 = texture2D(uTex, vec2(pos.x, y0)).g;
   float z1 = texture2D(uTex, vec2(pos.x, y1)).g;
   
-  // questionable?
-  if EQUALS(pos.z,1.0)
-    return z0;
-  else
-    // lerp them, for trilinear, using remaining fraction of zSlice
-    return mix(z0, z1, fract(zSlice));
+  // lerp them again (thus trilinear), using remaining fraction of zSlice
+  return mix(z0, z1, fract(zSlice));
 }
 
 void main() {
