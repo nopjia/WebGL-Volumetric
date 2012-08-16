@@ -62,8 +62,6 @@ void main() {
   vec3 P = vPos0;
   vec3 R = normalize(P-uCamPos);
   
-  
-  
   gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
   // gl_FragColor = vec4(vPos1n, 1.0);
 }
