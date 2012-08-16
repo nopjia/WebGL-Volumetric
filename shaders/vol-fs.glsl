@@ -14,6 +14,11 @@ precision highp float;
 #define EQUALS(A,B) ( abs((A)-(B)) < EPS )
 #define EQUALSZERO(A) ( ((A)<EPS) && ((A)>-EPS) )
 
+#define MAX_STEPS 64.0
+#define STEP_SIZE 0.015625
+
+#define MAX_STEPS 32.0
+#define STEP_SIZE 0.03125
 
 //---------------------------------------------------------
 // SHADER VARS
@@ -28,8 +33,12 @@ uniform vec3 uCamCenter;
 uniform vec3 uCamPos;
 uniform vec3 uCamUp;
 
-uniform sampler2D uTex;
-uniform vec3 uTexDim;
+uniform vec3 uLightP[2];  // point lights
+uniform vec3 uLightC[2];
+
+uniform vec3 uColor;      // color of volume
+uniform sampler2D uTex;   // 3D(2D) volume texture
+uniform vec3 uTexDim;     // dimensions of texture
 
 
 //---------------------------------------------------------
@@ -58,11 +67,28 @@ float sampleVolTex(vec3 pos) {
   return mix(z0, z1, fract(zSlice));
 }
 
-void main() {
-  // world coords
-  vec3 P = vPos0;
-  vec3 R = normalize(P-uCamPos);
+vec4 raymarch(vec3 ro, vec3 rd) {
+  vec4 col = vec4(0.0);
   
-  gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
+  for (float i=0.0; i<MAX_STEPS; ++i) {
+    vec3 pos = ro + rd*STEP_SIZE*i;
+    float a = sampleVolTex(pos)*STEP_SIZE;
+    col.a += a;
+  }
+  
+  col.rgb += uColor;
+  
+  return col;  
+}
+
+void main() {
+  // in world coords, just for now
+  vec3 ro = vPos1n;
+  vec3 rd = normalize(ro-uCamPos);
+  
+  vec4 col = raymarch(ro,rd);
+  
+  gl_FragColor = col;
+  // gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
   // gl_FragColor = vec4(vPos1n, 1.0);
 }

@@ -9,6 +9,10 @@ g = {};
 g.width, g.height;
 g.container, g.renderer, g.scene, g.camera, g.controls;
 g.uniforms;
+
+g.lightC = [];
+g.lightP = [];
+
 g.time = 0.0;
 
 function init() {
@@ -104,17 +108,6 @@ function animate() {
 }
 
 function initScene() {
-  var light, mesh, node;
-
-  // front light
-  light = new THREE.PointLight( 0xffffff, 0.8, 1000 );
-  light.position.set( 15, 20, 10 );
-  g.scene.add( light );
-
-  // back light
-  light = new THREE.PointLight( 0xffffff, 0.2, 1000 );
-  light.position.set( -10, 10, -15 );
-  g.scene.add( light );
   
   // fog
   g.scene.fog = new THREE.Fog( 0x000000, c.FOG_NEAR, c.FOG_FAR );
@@ -144,9 +137,29 @@ function initScene() {
   //
   //  var meshCanvas = new THREE.Mesh( geometry, materialCanvas );
   //  meshCanvas.scale.set( 100, 100, 100 );
+  //  meshCanvas.position.set(0, -1, 0);
   //
   //  g.scene.add(meshCanvas);
   //})();
+  
+  // lights
+  
+  // front light
+  var light;
+  light = new THREE.PointLight();
+  light.position.set( 6, 8, 2 );
+  light.color.setRGB( 1.0, 0.8, 0.0 );
+  g.scene.add( light );
+  g.lightP.push(light.position);
+  g.lightC.push(light.color);
+
+  // back light
+  light = new THREE.PointLight();
+  light.position.set( -4, 4, -6 );
+  light.color.setRGB( 0.0, 0.4, 0.7 );
+  g.scene.add( light );
+  g.lightP.push(light.position);
+  g.lightC.push(light.color);
 
 
   // the cube
@@ -156,10 +169,15 @@ function initScene() {
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
   
+  var volcol = new THREE.Vector3(0.8, 0.8, 0.8);
+  
   var uniforms = {
     uCamPos:    { type: "v3", value: g.camera.position },
     uCamCenter: { type: "v3", value: g.controls.target },
-    uCamUp:     { type: "v3", value: g.camera.up },
+    uCamUp:     { type: "v3", value: g.camera.up },    
+    uLightP:    { type: "v3v", value: g.lightP },
+    uLightC:    { type: "v3v", value: g.lightC },
+    uColor:     { type: "v3", value: volcol },
     uTex:       { type: "t", value: 0, texture: voltex },
     uTexDim:    { type: "v3", value: voltexDim }
   }
@@ -172,7 +190,7 @@ function initScene() {
   
   g.cube = new THREE.Mesh(
     new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
-    shader
+    shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
   );
   //g.cube.position.set(0.0, 0.0, 0.0);
   //g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
