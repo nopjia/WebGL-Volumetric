@@ -8,6 +8,8 @@ c.FOG_FAR  = 200;
 g = {};
 g.width, g.height;
 g.container, g.renderer, g.scene, g.camera, g.controls;
+g.uniforms;
+g.time = 0.0;
 
 function init() {
   // container
@@ -89,10 +91,16 @@ function onWindowResize(event) {
 
 function animate() {
   // DEBUGTEST
-  for (var i=4; i<g.scene.children.length; i++) {
-    g.scene.children[i].rotation.x += 0.01;
-    g.scene.children[i].rotation.y += 0.01;
-  }
+  //for (var i=4; i<g.scene.children.length; i++) {
+  //  g.scene.children[i].rotation.x += 0.01;
+  //  g.scene.children[i].rotation.y += 0.01;
+  //}
+  g.cube.rotation.x += 0.01;
+  g.cube.rotation.y += 0.01;
+  
+  g.cube.position.y = 2.0*Math.sin(g.time);
+  
+  g.time += 0.01;
 }
 
 function initScene() {
@@ -107,48 +115,77 @@ function initScene() {
   light = new THREE.PointLight( 0xffffff, 0.2, 1000 );
   light.position.set( -10, 10, -15 );
   g.scene.add( light );
-
-  // ground
-  (function() {
-    var imageCanvas = document.createElement( "canvas" );
-    var context = imageCanvas.getContext( "2d" );
-
-    imageCanvas.width = imageCanvas.height = 128;
-
-    context.fillStyle = "#CCC";
-    context.fillRect( 0, 0, 128, 128 );
-
-    context.fillStyle = "#fff";
-    context.fillRect( 0, 0, 64, 64);
-    context.fillRect( 64, 64, 64, 64 );
-
-    var textureCanvas = new THREE.Texture( imageCanvas, 
-      THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
-    var materialCanvas = new THREE.MeshBasicMaterial( { map: textureCanvas } );
-
-    textureCanvas.needsUpdate = true;
-    textureCanvas.repeat.set( 1000, 1000 );
-
-    var geometry = new THREE.PlaneGeometry( 100, 100 );
-
-    var meshCanvas = new THREE.Mesh( geometry, materialCanvas );
-    meshCanvas.scale.set( 100, 100, 100 );
-
-    g.scene.add(meshCanvas);
-  })();
-
-  // red cube
-  for (var x=-80; x<=80; x+=10)
-  for (var z=-200; z<=0; z+=10) {
-    mesh = new THREE.Mesh(
-      new THREE.CubeGeometry( 2.5, 2.5, 2.5 ),
-      new THREE.MeshLambertMaterial( { color: 0xFF0000 } )
-    );
-    mesh.position.set(x, 1.0, z);
-    g.scene.add(mesh);
-  }
-
+  
+  // fog
   g.scene.fog = new THREE.Fog( 0x000000, c.FOG_NEAR, c.FOG_FAR );
+
+  //// ground
+  //(function() {
+  //  var imageCanvas = document.createElement( "canvas" );
+  //  var context = imageCanvas.getContext( "2d" );
+  //
+  //  imageCanvas.width = imageCanvas.height = 128;
+  //
+  //  context.fillStyle = "#CCC";
+  //  context.fillRect( 0, 0, 128, 128 );
+  //
+  //  context.fillStyle = "#fff";
+  //  context.fillRect( 0, 0, 64, 64);
+  //  context.fillRect( 64, 64, 64, 64 );
+  //
+  //  var textureCanvas = new THREE.Texture( imageCanvas, 
+  //    THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
+  //  var materialCanvas = new THREE.MeshBasicMaterial( { map: textureCanvas } );
+  //
+  //  textureCanvas.needsUpdate = true;
+  //  textureCanvas.repeat.set( 1000, 1000 );
+  //
+  //  var geometry = new THREE.PlaneGeometry( 100, 100 );
+  //
+  //  var meshCanvas = new THREE.Mesh( geometry, materialCanvas );
+  //  meshCanvas.scale.set( 100, 100, 100 );
+  //
+  //  g.scene.add(meshCanvas);
+  //})();
+
+
+  // the cube
+  
+  var uniforms = {
+    uCamPos:    { type: "v3", value: g.camera.position },
+    uCamCenter: { type: "v3", value: g.controls.target },
+    uCamUp:     { type: "v3", value: g.camera.up }
+  }
+  
+  var shader = new THREE.ShaderMaterial({
+    uniforms:       uniforms,
+    vertexShader:   loadTextFile("shaders/vol-vs.glsl"),
+    fragmentShader: loadTextFile("shaders/vol-fs.glsl")
+  });
+  
+  g.cube = new THREE.Mesh(
+    new THREE.CubeGeometry( 2.5, 2.5, 2.5 ),
+    shader
+  );
+  g.cube.position.set(0.0, 0.0, 0.0);
+  g.scene.add(g.cube);
+}
+
+// perform synchronous ajax load
+function loadTextFile(url) {
+  var result;
+  
+  $.ajax({
+    url:      url,
+    type:     "GET",
+    async:    false,
+    dataType: "text",
+    success:  function(data) {
+      result = data;
+    }
+  });
+  
+  return result;
 }
 
 $(function() {
