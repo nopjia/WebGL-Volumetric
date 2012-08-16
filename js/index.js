@@ -64,7 +64,7 @@ function init() {
 }
 
 function update() {
-  animate();
+  //animate();
   g.stats.update();
   g.controls.update();
 
@@ -151,10 +151,16 @@ function initScene() {
 
   // the cube
   
+  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture2.png");
+  voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
+  var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
+  
   var uniforms = {
     uCamPos:    { type: "v3", value: g.camera.position },
     uCamCenter: { type: "v3", value: g.controls.target },
-    uCamUp:     { type: "v3", value: g.camera.up }
+    uCamUp:     { type: "v3", value: g.camera.up },
+    uTex:       { type: "t", value: 0, texture: voltex },
+    uTexDim:    { type: "v3", value: voltexDim }
   }
   
   var shader = new THREE.ShaderMaterial({
@@ -164,10 +170,11 @@ function initScene() {
   });
   
   g.cube = new THREE.Mesh(
-    new THREE.CubeGeometry( 2.5, 2.5, 2.5 ),
+    new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
     shader
   );
   g.cube.position.set(0.0, 0.0, 0.0);
+  g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
   g.scene.add(g.cube);
 }
 
