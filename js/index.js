@@ -153,6 +153,7 @@ function initScene() {
   
   var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture2.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
+  voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
   
   var uniforms = {

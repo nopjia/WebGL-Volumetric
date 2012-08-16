@@ -2,6 +2,19 @@
 precision highp float;
 #endif
 
+//---------------------------------------------------------
+// CONSTANTS
+//---------------------------------------------------------
+#define EPS       0.0001
+#define PI        3.14159265
+#define HALFPI    1.57079633
+#define ROOTTHREE 0.57735027
+
+//---------------------------------------------------------
+// MACROS
+//---------------------------------------------------------
+#define EQUALS(A,B) (abs(A-B)<EPS)
+
 varying vec2 vUv;
 varying vec3 vPos0; // position in world coords
 varying vec3 vPos1; // position in object coords
@@ -13,6 +26,10 @@ uniform vec3 uCamUp;
 
 uniform sampler2D uTex;
 uniform vec3 uTexDim;
+
+bool equals(float a, float b) {
+  return abs(a-b) < EPS;
+}
 
 float sampleVolTex(vec3 pos) {
   float zSlice = (pos.z)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
@@ -28,8 +45,12 @@ float sampleVolTex(vec3 pos) {
   float z0 = texture2D(uTex, vec2(pos.x, y0)).g;
   float z1 = texture2D(uTex, vec2(pos.x, y1)).g;
   
-  // lerp them, for trilinear, using remaining fraction of zSlice    
-  return mix(z0, z1, fract(zSlice));
+  // questionable?
+  if EQUALS(pos.z,1.0)
+    return z0;
+  else
+    // lerp them, for trilinear, using remaining fraction of zSlice
+    return mix(z0, z1, fract(zSlice));
 }
 
 void main() {
