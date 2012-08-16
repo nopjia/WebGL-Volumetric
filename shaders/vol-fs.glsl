@@ -14,11 +14,11 @@ precision highp float;
 #define EQUALS(A,B) ( abs((A)-(B)) < EPS )
 #define EQUALSZERO(A) ( ((A)<EPS) && ((A)>-EPS) )
 
-#define MAX_STEPS 64.0
+#define MAX_STEPS 64
 #define STEP_SIZE 0.015625
 
-#define MAX_STEPS 32.0
-#define STEP_SIZE 0.03125
+//#define MAX_STEPS 32
+//#define STEP_SIZE 0.03125
 
 //---------------------------------------------------------
 // SHADER VARS
@@ -68,27 +68,38 @@ float sampleVolTex(vec3 pos) {
 }
 
 vec4 raymarch(vec3 ro, vec3 rd) {
+  vec3 step = rd*STEP_SIZE;
+  vec3 pos = ro;
+  
   vec4 col = vec4(0.0);
   
-  for (float i=0.0; i<MAX_STEPS; ++i) {
-    vec3 pos = ro + rd*STEP_SIZE*i;
+  for (int i=0; i<MAX_STEPS; ++i) {    
     float a = sampleVolTex(pos)*STEP_SIZE;
-    col.a += a;
+    
+    //col.rgb += (1.0-col.a) * a * uColor;
+    col.a += (1.0-col.a) * a;
+    
+    pos += step;
+    
+    if (col.a > 0.95 ||
+      pos.x > 1.0 || pos.x < 0.0 ||
+      pos.y > 1.0 || pos.y < 0.0 ||
+      pos.z > 1.0 || pos.z < 0.0)
+      break;
   }
   
   col.rgb += uColor;
   
-  return col;  
+  return col;
 }
 
 void main() {
   // in world coords, just for now
   vec3 ro = vPos1n;
-  vec3 rd = normalize(ro-uCamPos);
-  
-  vec4 col = raymarch(ro,rd);
-  
-  gl_FragColor = col;
+  vec3 rd = normalize(ro-(uCamPos+vec3(0.5)));
+  //vec3 rd = normalize(ro-uCamPos);
+    
+  gl_FragColor = raymarch(ro,rd);
   // gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
   // gl_FragColor = vec4(vPos1n, 1.0);
 }

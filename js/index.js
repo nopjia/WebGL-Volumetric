@@ -164,12 +164,12 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture2g.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture1.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
   
-  var volcol = new THREE.Vector3(0.8, 0.8, 0.8);
+  var volcol = new THREE.Vector3(1.0);
   
   var uniforms = {
     uCamPos:    { type: "v3", value: g.camera.position },
