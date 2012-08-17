@@ -99,8 +99,12 @@ function animate() {
   //g.cube.rotation.y += 0.01;  
   //g.cube.position.y = 2.0*Math.sin(g.time);
   
-  g.lightP[0].x = 5.0*Math.sin(g.time);
-  g.lightP[0].z = 5.0*Math.cos(g.time);
+  g.lightP[0].x = 3.0*Math.sin(g.time);
+  g.lightP[0].z = 3.0*Math.cos(g.time);
+  
+  g.lightP[1].x = 0.0;
+  g.lightP[1].z = 0.0;
+  g.lightP[1].y = 2.0*Math.sin(g.time);
   
   g.time += 0.01;
 }
@@ -117,7 +121,7 @@ function addLight(pos, col) {
   var mat = new THREE.MeshBasicMaterial();
   mat.color = light.color;
   var shape = new THREE.Mesh(
-    new THREE.SphereGeometry( 0.2, 8, 8 ),
+    new THREE.SphereGeometry( 0.1, 8, 8 ),
     mat
   );
   shape.position = light.position;
@@ -163,7 +167,7 @@ function initScene() {
   //})();
   
   // lights
-  addLight(new THREE.Vector3(3, 4, 1), new THREE.Vector3(1.0, 0.9, 0.8));
+  addLight(new THREE.Vector3(2, 3, 1), new THREE.Vector3(1.0, 0.9, 0.8));
   addLight(new THREE.Vector3(-2, 2, -3), new THREE.Vector3(0.0, 0.2, 0.5));
 
   // the cube
