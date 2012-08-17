@@ -110,24 +110,30 @@ vec4 raymarch(vec3 ro, vec3 rd) {
   
   for (int i=0; i<MAX_STEPS; ++i) {
     // sample density
-    float density = 5.0*sampleVolTex(pos);
+    float density = sampleVolTex(pos);
     
     // sample light, compute color
     vec3 color = vec3(0.0);
-    for (int k=0; k<1; ++k) {
+    for (int k=0; k<LIGHT_NUM; ++k) {
       vec3 ld = normalize( toLocal(uLightP[k]) - pos );
-      float lfog = 2.0*getDensity(pos, ld);
+      float lblocked = 5.0*getDensity(pos, ld);   // TODO: light attenuation
       
-      vec3 lightc = uLightC[k]*(1.0-lfog);
-      color += lightc * uColor * STEP_SIZE;
+      vec3 lightc = uLightC[k]*(1.0-lblocked);
+      
+      // TESTDEBUG
+      vec3 testcol = vec3(1.0, 0.0, 0.0);
+      testcol = (pos.y<0.75 && pos.y>0.25) ? testcol : uColor;
+      //testcol = mix(testcol, uColor, pos.y);
+      
+      color += lightc * testcol;
     }
     
-    //vec3 testcol = vec3(1.0, 0.0, 0.0);
-    ////color = (pos.y>0.75 || pos.y<0.25) ? testcol : uColor;
-    //color = mix(testcol, uColor, pos.y);
-    
-    cout.rgb += (1.0-cout.a) * color;
-    cout.a += (1.0-cout.a) * density * STEP_SIZE;
+    // front to back blending
+    vec4 src = vec4(color, density*STEP_SIZE);
+    vec4 dst = cout;    
+    cout.a = src.a + dst.a*(1.0-src.a);
+    cout.rgb = EQUALSZERO(cout.a) ?
+      vec3(0.0) : (src.rgb*src.a + dst.rgb*dst.a*(1.0-src.a)) / cout.a;    
     
     pos += step;
     

@@ -164,11 +164,11 @@ function initScene() {
   
   // lights
   addLight(new THREE.Vector3(3, 4, 1), new THREE.Vector3(1.0, 0.9, 0.8));
-  addLight(new THREE.Vector3(-2, 2, -3), new THREE.Vector3(0.0, 0.1, 0.3));
+  addLight(new THREE.Vector3(-2, 2, -3), new THREE.Vector3(0.0, 0.2, 0.5));
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture0.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture1.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
