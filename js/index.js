@@ -4,6 +4,7 @@ c.CAM_NEAR = 1;
 c.CAM_FAR  = 200;
 c.FOG_NEAR = 10;
 c.FOG_FAR  = 200;
+c.CLEAR_COL = 0x1D1D55;
 
 g = {};
 g.width, g.height;
@@ -23,7 +24,7 @@ function init() {
 
   // renderer
   g.renderer = new THREE.WebGLRenderer({ 
-    clearAlpha: 1, 
+    clearAlpha: 0,
     clearColor: 0x000000,
     antialias: true
   });
@@ -164,12 +165,12 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture1.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture0.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
   
-  var volcol = new THREE.Vector3(1.0);
+  var volcol = new THREE.Vector3(0.0, 0.0, 1.0);
   
   var uniforms = {
     uCamPos:    { type: "v3", value: g.camera.position },

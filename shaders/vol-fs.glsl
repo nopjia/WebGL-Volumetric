@@ -14,11 +14,19 @@ precision highp float;
 #define EQUALS(A,B) ( abs((A)-(B)) < EPS )
 #define EQUALSZERO(A) ( ((A)<EPS) && ((A)>-EPS) )
 
+
+//---------------------------------------------------------
+// CONSTANTS
+//---------------------------------------------------------
+
 #define MAX_STEPS 64
 #define STEP_SIZE 0.015625
 
 //#define MAX_STEPS 32
 //#define STEP_SIZE 0.03125
+
+#define LIGHT_NUM 2
+
 
 //---------------------------------------------------------
 // SHADER VARS
@@ -33,8 +41,8 @@ uniform vec3 uCamCenter;
 uniform vec3 uCamPos;
 uniform vec3 uCamUp;
 
-uniform vec3 uLightP[2];  // point lights
-uniform vec3 uLightC[2];
+uniform vec3 uLightP[LIGHT_NUM];  // point lights
+uniform vec3 uLightC[LIGHT_NUM];
 
 uniform vec3 uColor;      // color of volume
 uniform sampler2D uTex;   // 3D(2D) volume texture
@@ -44,6 +52,11 @@ uniform vec3 uTexDim;     // dimensions of texture
 //---------------------------------------------------------
 // PROGRAM
 //---------------------------------------------------------
+
+// TODO: convert world to local volume space
+vec3 toLocal(vec3 p) {
+  return p + vec3(0.5);
+}
 
 float sampleVolTex(vec3 pos) {  
   // note: z is up in 3D tex coords, pos.z is tex.y, pos.y is zSlice
@@ -67,39 +80,76 @@ float sampleVolTex(vec3 pos) {
   return mix(z0, z1, fract(zSlice));
 }
 
-vec4 raymarch(vec3 ro, vec3 rd) {
+// calc density by ray marching
+float getDensity(vec3 ro, vec3 rd) {
   vec3 step = rd*STEP_SIZE;
   vec3 pos = ro;
   
-  vec4 col = vec4(0.0);
+  float density = 0.0;
   
   for (int i=0; i<MAX_STEPS; ++i) {    
-    float a = sampleVolTex(pos)*STEP_SIZE;
-    
-    //col.rgb += (1.0-col.a) * a * uColor;
-    col.a += (1.0-col.a) * a;
+    density += (1.0-density) * sampleVolTex(pos)*STEP_SIZE;
     
     pos += step;
     
-    if (col.a > 0.95 ||
+    if (density > 0.95 ||
       pos.x > 1.0 || pos.x < 0.0 ||
       pos.y > 1.0 || pos.y < 0.0 ||
       pos.z > 1.0 || pos.z < 0.0)
       break;
   }
   
-  col.rgb += uColor;
+  return density;
+}
+
+vec4 raymarch(vec3 ro, vec3 rd) {
+  vec3 step = rd*STEP_SIZE;
+  vec3 pos = ro;
   
-  return col;
+  vec4 cout = vec4(0.0);
+  
+  for (int i=0; i<MAX_STEPS; ++i) {
+    // sample density
+    float density = sampleVolTex(pos)*STEP_SIZE;
+    
+    // sample light, compute color
+    vec3 color;
+    //for (int k=0; k<1; ++k) {
+    //  vec3 ld = normalize( toLocal(vec3(5.0)) - pos );
+    //  float lfog = getDensity(pos, ld);
+    //  
+    //  vec3 lightc = vec3(1.0, 0.0, 0.0)*(1.0-lfog);
+    //  color = lightc * uColor;
+    //}
+    
+    vec3 testcol = vec3(1.0, 0.0, 0.0);
+    color = (pos.y>0.75 || pos.y<0.25) ? testcol : uColor;
+    //color = mix(testcol, uColor, pos.y);
+    
+    cout.rgb += (1.0-cout.a) * color;
+    cout.a += (1.0-cout.a) * density;
+    
+    pos += step;
+    
+    if (cout.a > 0.95 ||
+      pos.x > 1.0 || pos.x < 0.0 ||
+      pos.y > 1.0 || pos.y < 0.0 ||
+      pos.z > 1.0 || pos.z < 0.0)
+      break;
+  }
+  
+  return cout;
 }
 
 void main() {
   // in world coords, just for now
   vec3 ro = vPos1n;
-  vec3 rd = normalize(ro-(uCamPos+vec3(0.5)));
+  vec3 rd = normalize( ro - toLocal(uCamPos) );
   //vec3 rd = normalize(ro-uCamPos);
-    
-  gl_FragColor = raymarch(ro,rd);
+  
+  gl_FragColor = raymarch(ro, rd);
+  // gl_FragColor = vec4(uColor, getDensity(ro,rd));
   // gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
   // gl_FragColor = vec4(vPos1n, 1.0);
+  // gl_FragColor = vec4(uLightP[0], 1.0);
 }
