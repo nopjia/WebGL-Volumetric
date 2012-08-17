@@ -110,24 +110,24 @@ vec4 raymarch(vec3 ro, vec3 rd) {
   
   for (int i=0; i<MAX_STEPS; ++i) {
     // sample density
-    float density = sampleVolTex(pos)*STEP_SIZE;
+    float density = 5.0*sampleVolTex(pos);
     
     // sample light, compute color
-    vec3 color;
-    //for (int k=0; k<1; ++k) {
-    //  vec3 ld = normalize( toLocal(vec3(5.0)) - pos );
-    //  float lfog = getDensity(pos, ld);
-    //  
-    //  vec3 lightc = vec3(1.0, 0.0, 0.0)*(1.0-lfog);
-    //  color = lightc * uColor;
-    //}
+    vec3 color = vec3(0.0);
+    for (int k=0; k<1; ++k) {
+      vec3 ld = normalize( toLocal(uLightP[k]) - pos );
+      float lfog = 2.0*getDensity(pos, ld);
+      
+      vec3 lightc = uLightC[k]*(1.0-lfog);
+      color += lightc * uColor * STEP_SIZE;
+    }
     
-    vec3 testcol = vec3(1.0, 0.0, 0.0);
-    color = (pos.y>0.75 || pos.y<0.25) ? testcol : uColor;
+    //vec3 testcol = vec3(1.0, 0.0, 0.0);
+    ////color = (pos.y>0.75 || pos.y<0.25) ? testcol : uColor;
     //color = mix(testcol, uColor, pos.y);
     
     cout.rgb += (1.0-cout.a) * color;
-    cout.a += (1.0-cout.a) * density;
+    cout.a += (1.0-cout.a) * density * STEP_SIZE;
     
     pos += step;
     

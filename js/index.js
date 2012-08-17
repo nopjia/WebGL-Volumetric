@@ -69,7 +69,7 @@ function init() {
 }
 
 function update() {
-  //animate();
+  animate();
   g.stats.update();
   g.controls.update();
 
@@ -95,17 +95,36 @@ function onWindowResize(event) {
 };
 
 function animate() {
-  // DEBUGTEST
-  //for (var i=4; i<g.scene.children.length; i++) {
-  //  g.scene.children[i].rotation.x += 0.01;
-  //  g.scene.children[i].rotation.y += 0.01;
-  //}
-  g.cube.rotation.x += 0.01;
-  g.cube.rotation.y += 0.01;
+  //g.cube.rotation.x += 0.01;
+  //g.cube.rotation.y += 0.01;  
+  //g.cube.position.y = 2.0*Math.sin(g.time);
   
-  g.cube.position.y = 2.0*Math.sin(g.time);
+  g.lightP[0].x = 5.0*Math.sin(g.time);
+  g.lightP[0].z = 5.0*Math.cos(g.time);
   
   g.time += 0.01;
+}
+
+// inputs THREE.Vector3
+function addLight(pos, col) {  
+  var light;
+  light = new THREE.PointLight();
+  light.position.set( pos.x, pos.y, pos.z );
+  light.color.setRGB( col.x, col.y, col.z );
+  g.scene.add( light );
+  
+  // add geometry
+  var mat = new THREE.MeshBasicMaterial();
+  mat.color = light.color;
+  var shape = new THREE.Mesh(
+    new THREE.SphereGeometry( 0.2, 8, 8 ),
+    mat
+  );
+  shape.position = light.position;
+  g.scene.add(shape);
+  
+  g.lightP.push(light.position);
+  g.lightC.push(col);
 }
 
 function initScene() {
@@ -144,24 +163,8 @@ function initScene() {
   //})();
   
   // lights
-  
-  // front light
-  var light;
-  light = new THREE.PointLight();
-  light.position.set( 6, 8, 2 );
-  light.color.setRGB( 1.0, 0.8, 0.0 );
-  g.scene.add( light );
-  g.lightP.push(light.position);
-  g.lightC.push(light.color);
-
-  // back light
-  light = new THREE.PointLight();
-  light.position.set( -4, 4, -6 );
-  light.color.setRGB( 0.0, 0.4, 0.7 );
-  g.scene.add( light );
-  g.lightP.push(light.position);
-  g.lightC.push(light.color);
-
+  addLight(new THREE.Vector3(3, 4, 1), new THREE.Vector3(1.0, 0.9, 0.8));
+  addLight(new THREE.Vector3(-2, 2, -3), new THREE.Vector3(0.0, 0.1, 0.3));
 
   // the cube
   
@@ -170,7 +173,7 @@ function initScene() {
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
   
-  var volcol = new THREE.Vector3(0.0, 0.0, 1.0);
+  var volcol = new THREE.Vector3(1.0, 1.0, 1.0);
   
   var uniforms = {
     uCamPos:    { type: "v3", value: g.camera.position },
