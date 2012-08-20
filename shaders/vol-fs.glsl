@@ -110,13 +110,13 @@ vec4 raymarch(vec3 ro, vec3 rd) {
   
   for (int i=0; i<MAX_STEPS; ++i) {
     // sample density
-    float density = sampleVolTex(pos);
+    float density = 2.0*sampleVolTex(pos);
     
     // sample light, compute color
     vec3 color = vec3(0.0);
     for (int k=0; k<LIGHT_NUM; ++k) {
       vec3 ld = normalize( toLocal(uLightP[k]) - pos );
-      float lblocked = 5.0*getDensity(pos, ld);   // TODO: light attenuation
+      float lblocked = min( 5.0*getDensity(pos, ld) , 1.0);   // TODO: light attenuation
       
       vec3 lightc = uLightC[k]*(1.0-lblocked);
       

@@ -39,7 +39,7 @@ function init() {
     c.CAM_NEAR,
     c.CAM_FAR
   );
-  g.camera.position.set(1, 2, 3);
+  g.camera.position.set(0, 0, -3);
   g.camera.lookAt(new THREE.Vector3());
 
   // scene
@@ -101,7 +101,7 @@ function animate() {
   
   g.lightP[0].x = 2.0*Math.sin(g.time);
   g.lightP[0].z = 2.0*Math.cos(g.time);
-  g.lightP[0].y = 2.0;
+  g.lightP[0].y = 1.5;
   
   g.lightP[1].x = 2.0;
   g.lightP[1].z = 2.0;
