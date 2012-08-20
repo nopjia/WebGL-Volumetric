@@ -19,11 +19,11 @@ precision highp float;
 // CONSTANTS
 //---------------------------------------------------------
 
-#define MAX_STEPS 64
-#define STEP_SIZE 0.015625
+//#define MAX_STEPS 64
+//#define STEP_SIZE 0.015625
 
-//#define MAX_STEPS 32
-//#define STEP_SIZE 0.03125
+#define MAX_STEPS 32
+#define STEP_SIZE 0.03125
 
 #define LIGHT_NUM 2
 
@@ -121,11 +121,12 @@ vec4 raymarch(vec3 ro, vec3 rd) {
       vec3 lightc = uLightC[k]*(1.0-lblocked);
       
       // TESTDEBUG
-      vec3 testcol = vec3(1.0, 0.0, 0.0);
-      testcol = (pos.y<0.75 && pos.y>0.25) ? testcol : uColor;
+      //vec3 testcol = vec3(1.0, 0.0, 0.0);
+      //testcol = (pos.y<0.75 && pos.y>0.25) ? testcol : uColor;
       //testcol = mix(testcol, uColor, pos.y);
+      //testcol = uColor;
       
-      color += lightc * testcol;
+      color += lightc * uColor;
     }
     
     // front to back blending

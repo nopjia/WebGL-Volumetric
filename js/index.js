@@ -99,11 +99,12 @@ function animate() {
   //g.cube.rotation.y += 0.01;  
   //g.cube.position.y = 2.0*Math.sin(g.time);
   
-  g.lightP[0].x = 3.0*Math.sin(g.time);
-  g.lightP[0].z = 3.0*Math.cos(g.time);
+  g.lightP[0].x = 2.0*Math.sin(g.time);
+  g.lightP[0].z = 2.0*Math.cos(g.time);
+  g.lightP[0].y = 2.0;
   
-  g.lightP[1].x = 0.0;
-  g.lightP[1].z = 0.0;
+  g.lightP[1].x = 2.0;
+  g.lightP[1].z = 2.0;
   g.lightP[1].y = 2.0*Math.sin(g.time);
   
   g.time += 0.01;
@@ -172,10 +173,10 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/test_checker_texture1.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/bunny_filled_64x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
-  var voltexDim = new THREE.Vector3( 64.0, 64.0, 64.0 );
+  var voltexDim = new THREE.Vector3(64, 64, 64);
   
   var volcol = new THREE.Vector3(1.0, 1.0, 1.0);
   
