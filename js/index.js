@@ -171,7 +171,7 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_filled_lvl_100x.png");
+  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_fill_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var SIDESIZE = 100;
@@ -198,18 +198,18 @@ function initScene() {
   });
   
   // debug with wireframe
-  g.cube = THREE.SceneUtils.createMultiMaterialObject(
-    new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),
-    [
-      shader,
-      new THREE.MeshBasicMaterial( { wireframe: true, transparent: true, opacity: 0.1 } )
-    ]
-  )
+  //g.cube = THREE.SceneUtils.createMultiMaterialObject(
+  //  new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),
+  //  [
+  //    shader,
+  //    new THREE.MeshBasicMaterial( { wireframe: true, transparent: true, opacity: 0.1 } )
+  //  ]
+  //)
   
-  //g.cube = new THREE.Mesh(
-  //  new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
-  //  shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
-  //);
+  g.cube = new THREE.Mesh(
+    new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
+    shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
+  );
   //g.cube.position.set(0.0, 0.0, 0.0);
   //g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
   g.scene.add(g.cube);
