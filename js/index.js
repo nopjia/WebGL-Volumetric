@@ -171,7 +171,7 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_fill_100x.png");
+  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var SIDESIZE = 100;

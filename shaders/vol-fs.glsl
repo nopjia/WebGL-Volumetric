@@ -19,7 +19,6 @@ precision highp float;
 // CONSTANTS
 //---------------------------------------------------------
 
-// step_size = root_three / max_steps ; to get through diagonal
 // 32 48 64 96 128
 #define MAX_STEPS 64
 
@@ -158,6 +157,7 @@ void main() {
   vec3 rd = normalize( ro - toLocal(uCamPos) );
   //vec3 rd = normalize(ro-uCamPos);
   
+  // step_size = root_three / max_steps ; to get through diagonal  
   gStepSize = ROOTTHREE / float(MAX_STEPS);
   gStepFactor = 32.0 * gStepSize;
   
