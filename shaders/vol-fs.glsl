@@ -9,7 +9,7 @@ precision highp float;
 #define EPS       0.0001
 #define PI        3.14159265
 #define HALFPI    1.57079633
-#define ROOTTHREE 0.57735027
+#define ROOTTHREE 1.73205081
 
 #define EQUALS(A,B) ( abs((A)-(B)) < EPS )
 #define EQUALSZERO(A) ( ((A)<EPS) && ((A)>-EPS) )
@@ -19,11 +19,9 @@ precision highp float;
 // CONSTANTS
 //---------------------------------------------------------
 
+// step_size = root_three / max_steps ; to get through diagonal
+// 32 48 64 96 128
 #define MAX_STEPS 64
-#define STEP_SIZE 0.015625
-
-//#define MAX_STEPS 32
-//#define STEP_SIZE 0.03125
 
 #define LIGHT_NUM 2
 
@@ -47,6 +45,9 @@ uniform vec3 uLightC[LIGHT_NUM];
 uniform vec3 uColor;      // color of volume
 uniform sampler2D uTex;   // 3D(2D) volume texture
 uniform vec3 uTexDim;     // dimensions of texture
+
+float gStepSize;
+float gStepFactor;
 
 
 //---------------------------------------------------------
@@ -84,14 +85,13 @@ float sampleVolTex(vec3 pos) {
 
 // calc density by ray marching
 float getDensity(vec3 ro, vec3 rd) {
-  vec3 step = rd*STEP_SIZE;
+  vec3 step = rd*gStepSize;
   vec3 pos = ro;
   
   float density = 0.0;
   
   for (int i=0; i<MAX_STEPS; ++i) {
-    density += (1.0-density) * sampleVolTex(pos);
-    //density += (1.0-density) * sampleVolTex(pos) * STEP_SIZE * 2.0;
+    density += (1.0-density) * sampleVolTex(pos) * gStepFactor;
     //density += sampleVolTex(pos);
     
     pos += step;
@@ -107,7 +107,7 @@ float getDensity(vec3 ro, vec3 rd) {
 }
 
 vec4 raymarch(vec3 ro, vec3 rd) {
-  vec3 step = rd*STEP_SIZE;
+  vec3 step = rd*gStepSize;
   vec3 pos = ro;
   
   vec4 cout = vec4(0.0);
@@ -134,7 +134,7 @@ vec4 raymarch(vec3 ro, vec3 rd) {
     }
     
     // front to back blending
-    vec4 src = vec4(color, density);
+    vec4 src = vec4(color, density*gStepFactor);
     vec4 dst = cout;    
     cout.a = src.a + dst.a*(1.0-src.a);
     cout.rgb = EQUALSZERO(cout.a) ?
@@ -158,8 +158,11 @@ void main() {
   vec3 rd = normalize( ro - toLocal(uCamPos) );
   //vec3 rd = normalize(ro-uCamPos);
   
-  //gl_FragColor = raymarch(ro, rd);
-  gl_FragColor = vec4(uColor, getDensity(ro,rd));
+  gStepSize = ROOTTHREE / float(MAX_STEPS);
+  gStepFactor = 32.0 * gStepSize;
+  
+  gl_FragColor = raymarch(ro, rd);
+  //gl_FragColor = vec4(uColor, getDensity(ro,rd));
   //gl_FragColor = vec4( vec3(sampleVolTex(pos)), 1.0);
   //gl_FragColor = vec4(vPos1n, 1.0);
   //gl_FragColor = vec4(uLightP[0], 1.0);

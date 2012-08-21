@@ -4,7 +4,6 @@ c.CAM_NEAR = 1;
 c.CAM_FAR  = 200;
 c.FOG_NEAR = 10;
 c.FOG_FAR  = 200;
-c.CLEAR_COL = 0x1D1D55;
 
 g = {};
 g.width, g.height;
@@ -39,7 +38,6 @@ function init() {
     c.CAM_FAR
   );
   g.camera.position.set(0, 0, -3);
-  g.camera.position.set(1.5, 1.5, -1.5);
   g.camera.lookAt(new THREE.Vector3());
 
   // scene
@@ -103,9 +101,9 @@ function animate() {
   g.lightP[0].z = 2.0*Math.cos(g.time);
   g.lightP[0].y = 1.5;
   
-  //g.lightP[1].x = 2.0;
-  //g.lightP[1].z = 2.0;
-  //g.lightP[1].y = 2.0*Math.sin(g.time);
+  g.lightP[1].x = 2.0;
+  g.lightP[1].z = 2.0;
+  g.lightP[1].y = 2.0*Math.sin(g.time);
   
   g.time += 0.01;
 }
@@ -173,17 +171,18 @@ function initScene() {
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/bunny_filled_lvl_100x.png");
+  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_filled_lvl_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
-  var voltexDim = new THREE.Vector3(100, 100, 100);
+  var SIDESIZE = 100;
+  var voltexDim = new THREE.Vector3(SIDESIZE, SIDESIZE, SIDESIZE);
   
   var volcol = new THREE.Vector3(1.0, 1.0, 1.0);
   
   g.offset = new THREE.Vector3();
     
   g.uniforms = {
-    uCamPos: { type: "v3", value: g.camera.position },
+    uCamPos:    { type: "v3", value: g.camera.position },
     uLightP:    { type: "v3v", value: g.lightP },
     uLightC:    { type: "v3v", value: g.lightC },
     uColor:     { type: "v3", value: volcol },
@@ -236,17 +235,24 @@ function loadTextFile(url) {
 function mousetrap() {
   var STEP = 0.05;
   
-  Mousetrap.bind('up', function() {
+  Mousetrap.bind("up", function() {
     g.offset.y-=STEP;
   });
-  Mousetrap.bind('down', function() {
+  Mousetrap.bind("down", function() {
     g.offset.y+=STEP;
   });
-  Mousetrap.bind('left', function() {
+  Mousetrap.bind("left", function() {
     g.offset.x-=STEP;
   });
-  Mousetrap.bind('right', function() {
+  Mousetrap.bind("right", function() {
     g.offset.x+=STEP;
+  });
+  
+  Mousetrap.bind("shift+r", function() {
+    console.log("hotkey: reset camera");
+    g.camera.position.set(0, 0, -3);
+    g.camera.up.set(0, 1, 0);
+    g.camera.lookAt(new THREE.Vector3());
   });
 }
 
