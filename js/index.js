@@ -9,7 +9,6 @@ c.CLEAR_COL = 0x1D1D55;
 g = {};
 g.width, g.height;
 g.container, g.renderer, g.scene, g.camera, g.controls;
-g.uniforms;
 
 g.lightC = [];
 g.lightP = [];
@@ -40,6 +39,7 @@ function init() {
     c.CAM_FAR
   );
   g.camera.position.set(0, 0, -3);
+  g.camera.position.set(1.5, 1.5, -1.5);
   g.camera.lookAt(new THREE.Vector3());
 
   // scene
@@ -103,9 +103,9 @@ function animate() {
   g.lightP[0].z = 2.0*Math.cos(g.time);
   g.lightP[0].y = 1.5;
   
-  g.lightP[1].x = 2.0;
-  g.lightP[1].z = 2.0;
-  g.lightP[1].y = 2.0*Math.sin(g.time);
+  //g.lightP[1].x = 2.0;
+  //g.lightP[1].z = 2.0;
+  //g.lightP[1].y = 2.0*Math.sin(g.time);
   
   g.time += 0.01;
 }
@@ -168,39 +168,49 @@ function initScene() {
   //})();
   
   // lights
-  addLight(new THREE.Vector3(2, 3, 1), new THREE.Vector3(1.0, 0.9, 0.8));
-  addLight(new THREE.Vector3(-2, 2, -3), new THREE.Vector3(0.0, 0.2, 0.5));
+  addLight(new THREE.Vector3(2, 2, 1), new THREE.Vector3(1.0, 0.9, 0.8));
+  addLight(new THREE.Vector3(-2, 1, -3), new THREE.Vector3(0.0, 0.2, 0.5));
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("img/bunny_filled_100x.png");
+  var voltex = THREE.ImageUtils.loadTexture("img/bunny_filled_lvl_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var voltexDim = new THREE.Vector3(100, 100, 100);
   
   var volcol = new THREE.Vector3(1.0, 1.0, 1.0);
   
-  var uniforms = {
-    uCamPos:    { type: "v3", value: g.camera.position },
-    uCamCenter: { type: "v3", value: g.controls.target },
-    uCamUp:     { type: "v3", value: g.camera.up },    
+  g.offset = new THREE.Vector3();
+    
+  g.uniforms = {
+    uCamPos: { type: "v3", value: g.camera.position },
     uLightP:    { type: "v3v", value: g.lightP },
     uLightC:    { type: "v3v", value: g.lightC },
     uColor:     { type: "v3", value: volcol },
     uTex:       { type: "t", value: 0, texture: voltex },
-    uTexDim:    { type: "v3", value: voltexDim }
+    uTexDim:    { type: "v3", value: voltexDim },
+    uOffset:    { type: "v3", value: g.offset }
   }
   
   var shader = new THREE.ShaderMaterial({
-    uniforms:       uniforms,
+    uniforms:       g.uniforms,
     vertexShader:   loadTextFile("shaders/vol-vs.glsl"),
     fragmentShader: loadTextFile("shaders/vol-fs.glsl")
   });
   
-  g.cube = new THREE.Mesh(
-    new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
-    shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
-  );
+  // debug with wireframe
+  g.cube = THREE.SceneUtils.createMultiMaterialObject(
+    new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),
+    [
+      shader,
+      new THREE.MeshBasicMaterial( { wireframe: true, transparent: true, opacity: 0.1 } )
+    ]
+  )
+  
+  //g.cube = new THREE.Mesh(
+  //  new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
+  //  shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
+  //);
   //g.cube.position.set(0.0, 0.0, 0.0);
   //g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
   g.scene.add(g.cube);
@@ -223,7 +233,25 @@ function loadTextFile(url) {
   return result;
 }
 
+function mousetrap() {
+  var STEP = 0.05;
+  
+  Mousetrap.bind('up', function() {
+    g.offset.y-=STEP;
+  });
+  Mousetrap.bind('down', function() {
+    g.offset.y+=STEP;
+  });
+  Mousetrap.bind('left', function() {
+    g.offset.x-=STEP;
+  });
+  Mousetrap.bind('right', function() {
+    g.offset.x+=STEP;
+  });
+}
+
 $(function() {
-  init();  
+  init();
   update();
+  mousetrap();
 });

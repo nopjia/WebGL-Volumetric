@@ -19,11 +19,11 @@ precision highp float;
 // CONSTANTS
 //---------------------------------------------------------
 
-//#define MAX_STEPS 64
-//#define STEP_SIZE 0.015625
+#define MAX_STEPS 64
+#define STEP_SIZE 0.015625
 
-#define MAX_STEPS 32
-#define STEP_SIZE 0.03125
+//#define MAX_STEPS 32
+//#define STEP_SIZE 0.03125
 
 #define LIGHT_NUM 2
 
@@ -37,9 +37,9 @@ varying vec3 vPos0; // position in world coords
 varying vec3 vPos1; // position in object coords
 varying vec3 vPos1n; // normalized 0 to 1, for texture lookup
 
-uniform vec3 uCamCenter;
+uniform vec3 uOffset; // TESTDEBUG
+
 uniform vec3 uCamPos;
-uniform vec3 uCamUp;
 
 uniform vec3 uLightP[LIGHT_NUM];  // point lights
 uniform vec3 uLightC[LIGHT_NUM];
@@ -58,7 +58,9 @@ vec3 toLocal(vec3 p) {
   return p + vec3(0.5);
 }
 
-float sampleVolTex(vec3 pos) {  
+float sampleVolTex(vec3 pos) {
+  pos = pos + uOffset; // TESTDEBUG
+  
   // note: z is up in 3D tex coords, pos.z is tex.y, pos.y is zSlice
   float zSlice = (1.0-pos.y)*(uTexDim.z-1.0);   // float value of slice number, slice 0th to 63rd
   
@@ -87,8 +89,10 @@ float getDensity(vec3 ro, vec3 rd) {
   
   float density = 0.0;
   
-  for (int i=0; i<MAX_STEPS; ++i) {    
-    density += (1.0-density) * sampleVolTex(pos)*STEP_SIZE;
+  for (int i=0; i<MAX_STEPS; ++i) {
+    density += (1.0-density) * sampleVolTex(pos);
+    //density += (1.0-density) * sampleVolTex(pos) * STEP_SIZE * 2.0;
+    //density += sampleVolTex(pos);
     
     pos += step;
     
@@ -110,13 +114,13 @@ vec4 raymarch(vec3 ro, vec3 rd) {
   
   for (int i=0; i<MAX_STEPS; ++i) {
     // sample density
-    float density = 2.0*sampleVolTex(pos);
+    float density = sampleVolTex(pos);
     
     // sample light, compute color
     vec3 color = vec3(0.0);
     for (int k=0; k<LIGHT_NUM; ++k) {
       vec3 ld = normalize( toLocal(uLightP[k]) - pos );
-      float lblocked = min( 5.0*getDensity(pos, ld) , 1.0);   // TODO: light attenuation
+      float lblocked = min( getDensity(pos, ld) , 1.0);   // TODO: light attenuation
       
       vec3 lightc = uLightC[k]*(1.0-lblocked);
       
@@ -130,7 +134,7 @@ vec4 raymarch(vec3 ro, vec3 rd) {
     }
     
     // front to back blending
-    vec4 src = vec4(color, density*STEP_SIZE);
+    vec4 src = vec4(color, density);
     vec4 dst = cout;    
     cout.a = src.a + dst.a*(1.0-src.a);
     cout.rgb = EQUALSZERO(cout.a) ?
@@ -154,9 +158,9 @@ void main() {
   vec3 rd = normalize( ro - toLocal(uCamPos) );
   //vec3 rd = normalize(ro-uCamPos);
   
-  gl_FragColor = raymarch(ro, rd);
-  // gl_FragColor = vec4(uColor, getDensity(ro,rd));
-  // gl_FragColor = vec4( vec3(sampleVolTex(vPos1n)), 1.0);
-  // gl_FragColor = vec4(vPos1n, 1.0);
-  // gl_FragColor = vec4(uLightP[0], 1.0);
+  //gl_FragColor = raymarch(ro, rd);
+  gl_FragColor = vec4(uColor, getDensity(ro,rd));
+  //gl_FragColor = vec4( vec3(sampleVolTex(pos)), 1.0);
+  //gl_FragColor = vec4(vPos1n, 1.0);
+  //gl_FragColor = vec4(uLightP[0], 1.0);
 }
