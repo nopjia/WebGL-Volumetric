@@ -24,17 +24,29 @@
   <meta name="viewport" content="width=device-width">
 
   <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/index.css">  
+  <link rel="stylesheet" href="css/index.css">
+    
+  <!--modify dat.gui-->
+  <style>
+    .dg div.a {
+      margin-right: 0px;
+    }
+    .dg li.cr.number {
+      border: none;
+    }
+  </style>
 </head>
 
 <body>
+  <div id="gui-container"></div>
   <div id="container" class="gradient-bg-gray-black"></div>
 </body>
 
-<script src="js/lib/jquery.min.js"></script>
-<script src="js/lib/mousetrap.min.js"></script>
-<script src="js/lib/Three.js"></script>
-<script src="js/lib/Stats.js"></script>
+<script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/mousetrap.min.js"></script>
+<script type="text/javascript" src="js/lib/Three.js"></script>
+<script type="text/javascript" src="js/lib/Stats.js"></script>
+<script type="text/javascript" src="js/lib/dat.gui.min.js"></script>
 
 <script src="js/index.js"></script>
 

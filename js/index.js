@@ -8,6 +8,7 @@ c.FOG_FAR  = 200;
 g = {};
 g.width, g.height;
 g.container, g.renderer, g.scene, g.camera, g.controls;
+g.stats, g.gui;
 
 g.lightC = [];
 g.lightP = [];
@@ -56,12 +57,26 @@ function init() {
 
   initScene();
 
+  
   // insert stats
   g.stats = new Stats();
   g.stats.domElement.style.position = 'absolute';
   g.stats.domElement.style.top = '0px';
   g.stats.domElement.style.zIndex = 100;
   g.container.appendChild( g.stats.domElement );
+  
+  
+  // init gui
+  g.gui = new dat.GUI({ autoPlace:false });
+  $("#gui-container").append(g.gui.domElement);
+  
+  // hack to edit gui
+  $(g.gui.__closeButton).hide();
+  $(g.gui.__resize_handle).hide();
+  
+  // add line
+  g.guiline = g.gui.add(g.uniforms.uTMK, "value").min(0.0).max(32.0).step(1);
+  g.guiline.name("transmittance");
 
   window.addEventListener( 'resize', onWindowResize, false );
 }

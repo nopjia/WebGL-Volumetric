@@ -1,8 +1,19 @@
+div {
+  display: block;
+  position: relative;
+}
+
 #container {
   overflow: hidden;
 }
 #container>canvas {
   float: left;
+}
+
+#gui-container {
+  position: absolute;
+  bottom: 0;
+  z-index: 10;
 }
 
 .gradient-bg-cyan-black {
