@@ -167,11 +167,11 @@ function initScene() {
   
   // lights
   addLight(new THREE.Vector3(2, 2, 1), new THREE.Vector3(1.0, 0.9, 0.8));
-  addLight(new THREE.Vector3(-2, 1, -3), new THREE.Vector3(0.0, 0.2, 0.5));
+  addLight(new THREE.Vector3(-2, 1, -3), new THREE.Vector3(0.6, 0.1, 0.0));
 
   // the cube
   
-  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_100x.png");
+  var voltex = THREE.ImageUtils.loadTexture("textures/bunny_fill_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
   voltex.wrapS = voltex.wrapT = THREE.ClampToEdgeWrapping;
   var SIDESIZE = 100;
@@ -188,7 +188,8 @@ function initScene() {
     uColor:     { type: "v3", value: volcol },
     uTex:       { type: "t", value: 0, texture: voltex },
     uTexDim:    { type: "v3", value: voltexDim },
-    uOffset:    { type: "v3", value: g.offset }
+    uOffset:    { type: "v3", value: g.offset },
+    uTMK:       { type: "f", value: 12.0 }
   }
   
   var shader = new THREE.ShaderMaterial({
