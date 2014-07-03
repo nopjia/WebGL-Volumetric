@@ -2,8 +2,8 @@ c = {};
 c.CAM_FOV  = 45;
 c.CAM_NEAR = 1;
 c.CAM_FAR  = 200;
-c.FOG_NEAR = 10;
-c.FOG_FAR  = 200;
+c.FOG_NEAR = 1;
+c.FOG_FAR  = 20;
 
 g = {};
 g.width, g.height;
@@ -22,18 +22,19 @@ function init() {
   g.height = window.innerHeight;
 
   // renderer
-  g.renderer = new THREE.WebGLRenderer({ 
-    clearAlpha: 0,
+  g.renderer = new THREE.WebGLRenderer({
+    clearAlpha: 1,
     clearColor: 0x000000,
     antialias: true
   });
   g.renderer.setSize( g.width, g.height );
-  g.renderer.autoClear = false;  
+  g.renderer.autoClear = false;
+  g.renderer.sortObjects = false;
   g.container.appendChild( g.renderer.domElement );
 
   // camera
   g.camera = new THREE.PerspectiveCamera(
-    c.CAM_FOV, 
+    c.CAM_FOV,
     g.width/g.height,
     c.CAM_NEAR,
     c.CAM_FAR
@@ -49,14 +50,13 @@ function init() {
   g.controls = new THREE.TrackballControls(g.camera, g.container);
   g.controls.rotateSpeed = 1.0;
   g.controls.zoomSpeed = 1.2;
-  g.controls.panSpeed = 1.0;    
+  g.controls.panSpeed = 1.0;
   g.controls.dynamicDampingFactor = 0.3;
   g.controls.staticMoving = false;
   g.controls.noZoom = false;
   g.controls.noPan = false;
 
   initScene();
-
   
   // insert stats
   g.stats = new Stats();
@@ -64,7 +64,6 @@ function init() {
   g.stats.domElement.style.top = '0px';
   g.stats.domElement.style.zIndex = 100;
   g.container.appendChild( g.stats.domElement );
-  
   
   // init gui
   g.gui = new dat.GUI({ autoPlace:false });
@@ -91,7 +90,7 @@ function update() {
   g.renderer.render( g.scene, g.camera );
 
   requestAnimationFrame(update);
-};
+}
 
 function onWindowResize(event) {
   g.width  = window.innerWidth;
@@ -105,11 +104,11 @@ function onWindowResize(event) {
   g.controls.screen.width = g.width;
   g.controls.screen.height = g.height;
   g.controls.radius = ( g.width + g.height ) / 4;
-};
+}
 
 function animate() {
   //g.cube.rotation.x += 0.01;
-  //g.cube.rotation.y += 0.01;  
+  //g.cube.rotation.y += 0.01;
   //g.cube.position.y = 2.0*Math.sin(g.time);
   
   g.lightP[0].x = 2.0*Math.sin(g.time);
@@ -124,7 +123,7 @@ function animate() {
 }
 
 // inputs THREE.Vector3
-function addLight(pos, col) {  
+function addLight(pos, col) {
   var light;
   light = new THREE.PointLight();
   light.position.set( pos.x, pos.y, pos.z );
@@ -146,45 +145,11 @@ function addLight(pos, col) {
 }
 
 function initScene() {
-  
-  // fog
   g.scene.fog = new THREE.Fog( 0x000000, c.FOG_NEAR, c.FOG_FAR );
 
-  //// ground
-  //(function() {
-  //  var imageCanvas = document.createElement( "canvas" );
-  //  var context = imageCanvas.getContext( "2d" );
-  //
-  //  imageCanvas.width = imageCanvas.height = 128;
-  //
-  //  context.fillStyle = "#CCC";
-  //  context.fillRect( 0, 0, 128, 128 );
-  //
-  //  context.fillStyle = "#fff";
-  //  context.fillRect( 0, 0, 64, 64);
-  //  context.fillRect( 64, 64, 64, 64 );
-  //
-  //  var textureCanvas = new THREE.Texture( imageCanvas, 
-  //    THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
-  //  var materialCanvas = new THREE.MeshBasicMaterial( { map: textureCanvas } );
-  //
-  //  textureCanvas.needsUpdate = true;
-  //  textureCanvas.repeat.set( 1000, 1000 );
-  //
-  //  var geometry = new THREE.PlaneGeometry( 100, 100 );
-  //
-  //  var meshCanvas = new THREE.Mesh( geometry, materialCanvas );
-  //  meshCanvas.scale.set( 100, 100, 100 );
-  //  meshCanvas.position.set(0, -1, 0);
-  //
-  //  g.scene.add(meshCanvas);
-  //})();
-  
-  // lights
-  addLight(new THREE.Vector3(2, 2, 1), new THREE.Vector3(1.0, 0.9, 0.8));
-  addLight(new THREE.Vector3(-2, 1, -3), new THREE.Vector3(0.6, 0.1, 0.0));
+  // NOTE ADD TO SCENE TO DRAW IN ORDER
 
-  // the cube
+  // the cube - draw FIRST
   
   var voltex = THREE.ImageUtils.loadTexture("textures/bunny_fill_100x.png");
   voltex.minFilter = voltex.magFilter = THREE.LinearFilter;
@@ -204,31 +169,64 @@ function initScene() {
     uTex:       { type: "t", value: 0, texture: voltex },
     uTexDim:    { type: "v3", value: voltexDim },
     uOffset:    { type: "v3", value: g.offset },
-    uTMK:       { type: "f", value: 12.0 }
-  }
+    uTMK:       { type: "f", value: 16.0 }
+  };
   
   var shader = new THREE.ShaderMaterial({
     uniforms:       g.uniforms,
     vertexShader:   loadTextFile("shaders/vol-vs.glsl"),
-    fragmentShader: loadTextFile("shaders/vol-fs.glsl")
+    fragmentShader: loadTextFile("shaders/vol-fs.glsl"),
+    depthWrite:     false
   });
   
-  // debug with wireframe
-  //g.cube = THREE.SceneUtils.createMultiMaterialObject(
+  //debug with wireframe
+  // g.cube = THREE.SceneUtils.createMultiMaterialObject(
   //  new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),
   //  [
   //    shader,
   //    new THREE.MeshBasicMaterial( { wireframe: true, transparent: true, opacity: 0.1 } )
   //  ]
-  //)
+  // );
   
   g.cube = new THREE.Mesh(
     new THREE.CubeGeometry( 1.0, 1.0, 1.0 ),    // must be unit cube
     shader //new THREE.MeshLambertMaterial( { color: 0xCCCCCC } )
   );
-  //g.cube.position.set(0.0, 0.0, 0.0);
-  //g.cube.scale.set(3.0, 3.0, 3.0);      // scale later
   g.scene.add(g.cube);
+
+  // ground
+  (function() {
+    var imageCanvas = document.createElement( "canvas" );
+    var context = imageCanvas.getContext( "2d" );
+
+    imageCanvas.width = imageCanvas.height = 128;
+
+    context.fillStyle = "#CCC";
+    context.fillRect( 0, 0, 128, 128 );
+
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, 64, 64);
+    context.fillRect(64, 64, 64, 64);
+
+    var textureCanvas = new THREE.Texture( imageCanvas,
+      THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
+    var materialCanvas = new THREE.MeshBasicMaterial( { map: textureCanvas } );
+
+    textureCanvas.needsUpdate = true;
+    textureCanvas.repeat.set( 10000, 10000 );
+
+    var geometry = new THREE.PlaneGeometry( 100, 100 );
+
+    var meshCanvas = new THREE.Mesh( geometry, materialCanvas );
+    meshCanvas.scale.set( 100, 100, 100 );
+    meshCanvas.position.set(0, -1, 0);
+
+    g.scene.add(meshCanvas);
+  })();
+  
+  // lights
+  addLight(new THREE.Vector3(2, 2, 1), new THREE.Vector3(1.0, 0.9, 0.8));
+  addLight(new THREE.Vector3(-2, 1, -3), new THREE.Vector3(0.6, 0.1, 0.0));
 }
 
 // perform synchronous ajax load
