@@ -5,7 +5,7 @@ Real-time volumetric renderer with physically based lighting
 Volume data is a 3D texture simulated by 2D tiles
 (TODO: 2D tiles as square texture)
 
-Live code: [iamnop.com/volumetric](http://iamnop.com/volumetric)
+Live demo: [iamnop.com/volumetric](http://iamnop.com/volumetric)
 
 Blog: http://nopjia.blogspot.com/2012/09/webgl-volumetric-renderer.html
 
